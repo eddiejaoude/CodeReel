@@ -66,6 +66,7 @@ export interface Settings {
   // input
   mode: InputMode
   code: string
+  console: string | null
   steps: Step[]
   /** global default transition for steps that don't override it */
   transition: TransitionStyle

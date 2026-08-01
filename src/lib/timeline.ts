@@ -1,7 +1,7 @@
 import type { Settings, TransitionStyle } from './types'
 
 export interface Phase {
-  kind: 'reveal' | 'hold' | 'trans'
+  kind: 'reveal' | 'hold' | 'trans' | 'console'
   /** the step index this phase resolves to (the step being revealed / held / arrived at) */
   step: number
   /** for 'trans': the step we are coming from */
@@ -33,6 +33,14 @@ export function resolveTransition(
 export function buildTimeline(settings: Settings): Timeline {
   const { steps, duration, stepHold, transitionDur, transition } = settings
   const phases: Phase[] = []
+
+  if (settings.mode === 'sequence') {
+    phases.push({ kind: 'reveal', step: 0, dur: Math.max(0.1, duration) })
+    if (settings.console !== null) {
+      phases.push({ kind: 'console', step: 0, dur: Math.max(0.1, duration * 0.45) })
+    }
+    return { phases, total: phases.reduce((s, p) => s + p.dur, 0) || 1 }
+  }
 
   phases.push({ kind: 'reveal', step: 0, dur: Math.max(0.1, duration) })
   phases.push({ kind: 'hold', step: 0, dur: Math.max(0, stepHold) })

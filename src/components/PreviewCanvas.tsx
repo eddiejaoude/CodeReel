@@ -253,6 +253,37 @@ function typeInRows(nextLines: Token[][], status: LineStatus[], t: number, playi
   })
 }
 
+function revealConsoleRows(lines: Token[][], revealT: number, playing: boolean, ctx: RowCtx): ReactNode[] {
+  let total = 0
+  const starts = lines.map((line) => {
+    const start = total
+    total += lineLength(line) + 1
+    return start
+  })
+  const revealed = Math.floor(clamp01(revealT) * Math.max(1, total))
+  const done = revealT >= 1
+
+  return lines.map((line, i) => {
+    const len = lineLength(line)
+    const chars = done ? len : Math.max(0, Math.min(len, revealed - starts[i]))
+    const active = !done && revealed >= starts[i] && chars < len
+    return (
+      <div key={i} className="flex whitespace-pre">
+        <span style={{ color: ctx.caretColor }}>$ </span>
+        <span>
+          <TokenSpans tokens={sliceLine(line, chars)} colors={ctx.colors} fg={ctx.fg} />
+          {active && (
+            <span className={playing ? '' : 'caret-blink'} style={{ color: ctx.caretColor, marginLeft: 1 }}>
+              ▍
+            </span>
+          )}
+          {!done && <span className="invisible">{line.map((tok) => tok.s).join('').slice(chars)}</span>}
+        </span>
+      </div>
+    )
+  })
+}
+
 export function PreviewCanvas({
   settings,
   progress,
@@ -303,7 +334,34 @@ export function PreviewCanvas({
   // build the inner code rows for the current frame
   let rows: ReactNode
   if (!isSteps) {
-    rows = revealRows(seqLines, settings.animation, progress, playing, ctx)
+    const { phase, localT } = locate(timeline, progress)
+    const codeRows = phase.kind === 'console'
+      ? fullRows(seqLines, ctx)
+      : revealRows(seqLines, settings.animation, localT, playing, ctx)
+    rows = (
+      <>
+        <div style={{ minHeight: codeMinHeight }}>{codeRows}</div>
+        {settings.console !== null && (
+          <div
+            className="mt-5 overflow-hidden rounded-lg border border-white/10"
+            style={{
+              background: 'rgba(0,0,0,0.2)',
+              opacity: phase.kind === 'console' ? 1 : 0,
+              transform: phase.kind === 'console' ? undefined : 'translateY(10px)',
+              transition: 'opacity 180ms ease, transform 180ms ease',
+            }}
+          >
+            <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.16em]" style={{ color: theme.lineNumber }}>
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              Console
+            </div>
+            <div className="px-3 py-3" style={{ minHeight: lineHeightPx * Math.max(1, tokenizeLines(settings.console, 'bash').length) + 24 }}>
+              {revealConsoleRows(tokenizeLines(settings.console, 'bash'), phase.kind === 'console' ? localT : 0, playing, ctx)}
+            </div>
+          </div>
+        )}
+      </>
+    )
   } else {
     const { phase, localT } = locate(timeline, progress)
     if (phase.kind === 'reveal') {
