@@ -103,13 +103,13 @@ export function PlaybackBar({
   const stepNow = isSteps ? currentStep(timeline, playback.progress) : 0
 
   return (
-    <div className="border-t border-white/5 bg-ink-900 px-5 pt-3 pb-4">
+    <div className="min-w-0 shrink-0 border-t border-white/5 bg-ink-900 px-3 pt-3 pb-3 sm:px-5 sm:pb-4">
       {/* timeline */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <span className="w-10 text-right font-mono text-[11px] text-zinc-500 tabular-nums">
           {fmt(current)}
         </span>
-        <div className="relative flex-1">
+        <div className="relative min-w-0 flex-1">
           <input
             type="range"
             min={0}
@@ -155,8 +155,12 @@ export function PlaybackBar({
       )}
 
       {/* controls */}
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-2.5">
-        <div className="flex items-center gap-1.5">
+      <div
+        role="group"
+        aria-label="Playback controls"
+        className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-2.5"
+      >
+        <div className="flex shrink-0 items-center gap-1.5">
           {isSteps && (
             <button
               type="button"
@@ -209,10 +213,10 @@ export function PlaybackBar({
           </button>
         </div>
 
-        <div className="h-6 w-px bg-white/8" />
+        <div className="hidden h-6 w-px shrink-0 bg-white/8 sm:block" />
 
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="shrink-0 text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
             {isSteps ? 'Intro' : 'Motion'}
           </span>
           <Segmented<AnimationStyle>
@@ -228,7 +232,8 @@ export function PlaybackBar({
                 title: m.wTitle || m.title,
                 label: (
                   <span className="flex items-center gap-1.5">
-                    <Icon className="h-3.5 w-3.5" /> {m.wLabel || m.label}
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">{m.wLabel || m.label}</span>
                   </span>
                 ),
               }
@@ -236,7 +241,7 @@ export function PlaybackBar({
           />
         </div>
 
-        <div className="ml-auto flex items-center gap-4">
+        <div className="flex w-full min-w-0 flex-wrap items-center gap-x-4 gap-y-2 lg:ml-auto lg:w-auto lg:shrink-0 lg:flex-nowrap">
           {isSteps && (
             <span className="text-[11px] font-medium tracking-wide text-zinc-500 tabular-nums">
               Step {stepNow + 1} / {settings.steps.length}

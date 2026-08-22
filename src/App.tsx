@@ -19,6 +19,14 @@ import { PlaybackBar } from './components/PlaybackBar'
 import { ExportModal } from './components/ExportModal'
 import { ProjectsModal } from './components/ProjectsModal'
 
+type MobileWorkspace = 'code' | 'preview' | 'style'
+
+const MOBILE_WORKSPACES: { id: MobileWorkspace; label: string }[] = [
+  { id: 'code', label: 'Code' },
+  { id: 'preview', label: 'Preview' },
+  { id: 'style', label: 'Style' },
+]
+
 export default function App() {
   // Restore the last working draft (autosaved locally) so a reload continues where
   // the user left off; fall back to a fresh project on first visit.
@@ -35,6 +43,7 @@ export default function App() {
   // (null = normal wall-clock playback)
   const [exportProgress, setExportProgress] = useState<number | null>(null)
   const [activeStep, setActiveStep] = useState(0)
+  const [mobileWorkspace, setMobileWorkspace] = useState<MobileWorkspace>('preview')
 
   const update = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => ({ ...prev, ...patch }))
@@ -198,14 +207,50 @@ export default function App() {
         onSave={saveCurrent}
         onOpenProjects={() => setProjectsOpen(true)}
       />
-      <div className="flex min-h-0 flex-1">
-        <CodePanel
-          settings={settings}
-          update={update}
-          activeStep={activeStep}
-          setActiveStep={setActiveStep}
-        />
-        <main className="flex min-w-0 flex-1 flex-col">
+
+      <nav
+        aria-label="Editor workspace"
+        className="grid shrink-0 grid-cols-3 gap-1 border-b border-white/5 bg-ink-900 p-1.5 lg:hidden"
+      >
+        {MOBILE_WORKSPACES.map((workspace) => {
+          const active = mobileWorkspace === workspace.id
+          return (
+            <button
+              key={workspace.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setMobileWorkspace(workspace.id)}
+              className={`cursor-pointer rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
+                active
+                  ? 'bg-accent-500/15 text-accent-300 ring-1 ring-accent-500/30'
+                  : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+              }`}
+            >
+              {workspace.label}
+            </button>
+          )
+        })}
+      </nav>
+
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div
+          className={`${
+            mobileWorkspace === 'code' ? 'flex' : 'hidden'
+          } min-h-0 flex-1 justify-center max-lg:[&>aside]:w-full lg:flex lg:w-[320px] lg:flex-none`}
+        >
+          <CodePanel
+            settings={settings}
+            update={update}
+            activeStep={activeStep}
+            setActiveStep={setActiveStep}
+          />
+        </div>
+
+        <main
+          className={`${
+            mobileWorkspace === 'preview' ? 'flex' : 'hidden'
+          } min-w-0 flex-1 flex-col lg:flex`}
+        >
           <PreviewPlaybackSurface playing={playback.playing} onTogglePlayback={toggle}>
             <Suspense
               fallback={
@@ -232,8 +277,16 @@ export default function App() {
             onStep={goToStep}
           />
         </main>
-        <StylePanel settings={settings} update={update} />
+
+        <div
+          className={`${
+            mobileWorkspace === 'style' ? 'flex' : 'hidden'
+          } min-h-0 flex-1 justify-center max-lg:[&>aside]:w-full lg:flex lg:w-[300px] lg:flex-none`}
+        >
+          <StylePanel settings={settings} update={update} />
+        </div>
       </div>
+
       {exporting && (
         <ExportModal
           settings={settings}

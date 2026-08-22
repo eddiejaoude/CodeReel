@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { codePanel, expectNoPageErrors, openApp } from './app.js'
+import { codePanel, expectNoPageErrors, openApp, pausePreview } from './app.js'
 
 // Each Playwright test runs in a fresh browser context, so localStorage starts
 // empty — no cross-test cleanup needed. The one intra-test persistence check
@@ -30,6 +30,9 @@ function row(page: Page, name: string) {
 test.describe('Projects (local persistence)', () => {
   test.beforeEach(async ({ page }) => {
     await openApp(page)
+    // Project persistence is the behaviour under test here. Freeze the animated
+    // WebGL preview so software rendering cannot starve unrelated modal actions.
+    await pausePreview(page)
   })
 
   test.afterEach(async ({ page }) => {
@@ -78,6 +81,9 @@ test.describe('Projects (local persistence)', () => {
     // switch to steps mode, then save as project 2
     await codePanel(page).getByRole('button', { name: 'Steps' }).click()
     await expect(codePanel(page).getByText('Step 1 / 3', { exact: true })).toBeVisible()
+    // Changing editor mode restarts playback. Pause it again before the second
+    // modal interaction for the same reason as the beforeEach setup above.
+    await pausePreview(page)
     await openProjects(page)
     await saveCurrentAs(page, 'Steps Project')
 
