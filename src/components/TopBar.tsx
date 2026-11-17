@@ -52,12 +52,12 @@ function GitHubLink() {
       rel="noreferrer"
       aria-label="View CodeReel on GitHub"
       title="View CodeReel on GitHub"
-      className="flex h-[34px] items-center gap-1.5 rounded-lg bg-white/5 px-2.5 text-[12px] font-medium text-zinc-400 ring-1 ring-white/5 ring-inset transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
+      className="hidden h-[34px] items-center gap-1.5 rounded-lg bg-white/5 px-2.5 text-[12px] font-medium text-zinc-400 ring-1 ring-white/5 ring-inset transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none sm:flex"
     >
       <GitHubMark className="h-4 w-4" />
-      <span className="hidden sm:inline">GitHub</span>
+      <span className="hidden md:inline">GitHub</span>
       {starCount !== null && (
-        <span className="hidden items-center gap-1 border-l border-white/10 pl-1.5 text-zinc-300 sm:flex">
+        <span className="hidden items-center gap-1 border-l border-white/10 pl-1.5 text-zinc-300 md:flex">
           <Star className="h-3.5 w-3.5" aria-hidden="true" />
           {STAR_COUNT_FORMATTER.format(starCount)}
         </span>
@@ -83,7 +83,7 @@ export function TopBar({
   onOpenProjects: () => void
 }) {
   return (
-    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-white/5 bg-ink-900 px-4">
+    <header className="flex min-h-14 shrink-0 flex-wrap items-center gap-2 border-b border-white/5 bg-ink-900 px-3 py-2 lg:h-14 lg:flex-nowrap lg:gap-4 lg:px-4 lg:py-0">
       <div className="flex items-center gap-2.5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500 to-fuchsia-500 shadow-lg shadow-accent-500/30">
           <Film className="h-4.5 w-4.5 text-white" />
@@ -104,11 +104,13 @@ export function TopBar({
         </span>
       </div>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="flex w-full min-w-0 items-center justify-between gap-2 lg:ml-auto lg:w-auto lg:justify-end lg:gap-3">
         <GitHubLink />
         <button
           type="button"
           onClick={onOpenProjects}
+          aria-label="Open projects"
+          title="Open projects"
           className="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg bg-white/5 px-2.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/5 ring-inset transition-colors hover:bg-white/10 hover:text-white"
         >
           <FolderOpen className="h-4 w-4" />
@@ -117,6 +119,8 @@ export function TopBar({
         <button
           type="button"
           onClick={onSave}
+          aria-label="Save project"
+          title="Save project"
           className="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg bg-white/5 px-2.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/5 ring-inset transition-colors hover:bg-white/10 hover:text-white"
         >
           <Save className="h-4 w-4" />
@@ -134,10 +138,12 @@ export function TopBar({
         <button
           type="button"
           onClick={onExport}
-          className="flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-br from-accent-500 to-fuchsia-500 px-4 py-2 text-[13px] font-semibold text-white shadow-lg shadow-accent-500/25 transition-all duration-150 hover:brightness-110 active:scale-[0.97]"
+          aria-label="Export GIF"
+          title="Export GIF"
+          className="flex h-[34px] cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-br from-accent-500 to-fuchsia-500 px-2.5 text-[13px] font-semibold text-white shadow-lg shadow-accent-500/25 transition-all duration-150 hover:brightness-110 active:scale-[0.97] sm:h-auto sm:px-4 sm:py-2"
         >
           <Clapperboard className="h-4 w-4" />
-          Export GIF
+          <span className="hidden sm:inline">Export GIF</span>
         </button>
       </div>
     </header>
